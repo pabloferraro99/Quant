@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eigenvector Research Partners</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #131318;
+  --bg-card-hover: #19191f;
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(255,255,255,0.1);
+  --text: #f0eee8;
+  --text-2: #a09a8e;
+  --text-3: #605c54;
+  --gold: #c9a84c;
+  --gold-l: #e0c76a;
+  --gold-dim: rgba(201,168,76,0.10);
+  --gold-glow: rgba(201,168,76,0.20);
+  --silver: #b4b8c4;
+  --silver-l: #d2d5de;
+  --green: #4ecb71;
+  --green-dim: rgba(78,203,113,0.10);
+  --red: #e05555;
+  --red-dim: rgba(224,85,85,0.10);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --radius-pill: 100px;
+  --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--font); overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.18); border-radius: 3px; }
+
+#bgCanvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9998;
+}
+.glow { position: fixed; border-radius: 50%; filter: blur(140px); pointer-events: none; z-index: 0; }
+.glow.g1 { width: 600px; height: 600px; background: rgba(201,168,76,0.05); top: -100px; right: -80px; }
+.glow.g2 { width: 400px; height: 400px; background: rgba(180,184,196,0.03); bottom: -150px; left: -60px; }
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
+  padding: 0 40px; height: 72px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(10,10,15,0.6); backdrop-filter: blur(40px) saturate(1.5);
+  border-bottom: 1px solid var(--border);
+}
+nav.scrolled { background: rgba(10,10,15,0.92); }
+.nav-brand { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+.nav-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--gold), #a8842a);
+  display: grid; place-items: center;
+  box-shadow: 0 2px 12px rgba(201,168,76,0.2);
+}
+.nav-icon svg { width: 18px; height: 18px; }
+.nav-wordmark { font-size: 17px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; }
+.nav-wordmark span { color: var(--gold-l); }
+.nav-links { display: flex; align-items: center; gap: 8px; list-style: none; }
+.nav-links a {
+  font-size: 13.5px; font-weight: 500; color: var(--text-2);
+  text-decoration: none; padding: 8px 18px; border-radius: var(--radius-pill); transition: all 0.3s;
+}
+.nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.nav-cta-btn {
+  font-family: var(--font) !important; font-size: 13px !important; font-weight: 600 !important;
+  padding: 10px 26px !important;
+  background: linear-gradient(135deg, var(--gold), #b8922a) !important;
+  color: var(--bg) !important; border-radius: var(--radius-pill) !important;
+  box-shadow: 0 2px 16px rgba(201,168,76,0.15);
+  transition: all 0.3s var(--ease) !important;
+}
+.nav-cta-btn:hover { transform: translateY(-1px) !important; box-shadow: 0 6px 24px rgba(201,168,76,0.3) !important; }
+
+.hero {
+  position: relative; z-index: 1; min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 160px 40px 80px; max-width: 1280px; margin: 0 auto;
+}
+.hero-pill {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--gold-dim); border: 1px solid rgba(201,168,76,0.15);
+  border-radius: var(--radius-pill); padding: 8px 20px 8px 14px;
+  width: fit-content; margin-bottom: 36px;
+  opacity: 0; animation: fadeUp 0.8s var(--ease) 0.2s forwards;
+}
+.hero-pill .dot { width: 7px; height: 7px; background: var(--gold); border-radius: 50%; animation: pulse 2.5s ease-in-out infinite; box-shadow: 0 0 8px var(--gold-glow); }
+.hero-pill span { font-size: 12.5px; font-weight: 600; color: var(--gold-l); letter-spacing: 0.04em; }
+
+.hero h1 {
+  font-size: clamp(44px, 6.5vw, 80px); font-weight: 800;
+  line-height: 1.06; letter-spacing: -0.035em; max-width: 780px;
+  opacity: 0; animation: fadeUp 1s var(--ease) 0.4s forwards;
+}
+.hero h1 .gradient {
+  background: linear-gradient(135deg, var(--gold-l) 0%, var(--gold) 40%, var(--silver-l) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-sub {
+  margin-top: 28px; font-size: 18px; font-weight: 400; line-height: 1.7;
+  color: var(--text-2); max-width: 520px;
+  opacity: 0; animation: fadeUp 0.8s var(--ease) 0.6s forwards;
+}
+.hero-actions {
+  display: flex; gap: 16px; margin-top: 44px;
+  opacity: 0; animation: fadeUp 0.8s var(--ease) 0.75s forwards;
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font); font-size: 15px; font-weight: 600;
+  padding: 16px 36px;
+  background: linear-gradient(135deg, var(--gold), #b8922a);
+  color: var(--bg); border: none; border-radius: var(--radius-pill);
+  cursor: pointer; transition: all 0.3s var(--ease); text-decoration: none;
+  box-shadow: 0 4px 24px rgba(201,168,76,0.2);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 36px rgba(201,168,76,0.35); }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font); font-size: 15px; font-weight: 500;
+  padding: 16px 36px;
+  background: rgba(255,255,255,0.04); color: var(--text);
+  border: 1px solid var(--border-hover); border-radius: var(--radius-pill);
+  cursor: pointer; transition: all 0.3s var(--ease); text-decoration: none;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.16); }
+
+.stat-row {
+  display: flex; gap: 12px; margin-top: 56px;
+  opacity: 0; animation: fadeUp 0.8s var(--ease) 0.9s forwards;
+}
+.stat-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px 28px;
+  flex: 1; transition: all 0.4s var(--ease); position: relative; overflow: hidden;
+}
+.stat-card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); transform: translateY(-2px); }
+.stat-card-icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 16px; font-size: 18px; }
+.stat-card-icon.gold-bg { background: var(--gold-dim); }
+.stat-card-icon.green-bg { background: var(--green-dim); }
+.stat-card-icon.silver-bg { background: rgba(180,184,196,0.06); }
+.stat-card-icon.red-bg { background: var(--red-dim); }
+.stat-card-val { font-family: var(--mono); font-size: 24px; font-weight: 500; letter-spacing: -0.02em; }
+.stat-card-val.gold { color: var(--gold-l); }
+.stat-card-val.green { color: var(--green); }
+.stat-card-val.silver { color: var(--silver-l); }
+.stat-card-val.red { color: var(--red); }
+.stat-card-lbl { font-size: 12.5px; font-weight: 500; color: var(--text-3); margin-top: 4px; }
+
+.content { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 0 40px; }
+.section { padding: 100px 0; }
+.section + .section { border-top: 1px solid var(--border); }
+
+.stag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; color: var(--gold);
+  background: var(--gold-dim); border: 1px solid rgba(201,168,76,0.12);
+  border-radius: var(--radius-pill); padding: 6px 16px;
+  margin-bottom: 20px; letter-spacing: 0.03em;
+}
+.stitle { font-size: clamp(28px, 3.5vw, 44px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; max-width: 600px; margin-bottom: 14px; }
+.sdesc { font-size: 16px; font-weight: 400; line-height: 1.75; color: var(--text-2); max-width: 520px; margin-bottom: 48px; }
+
+.chart-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.3s; }
+.chart-card:hover { border-color: var(--border-hover); }
+.chart-top { padding: 28px 32px 0; display: flex; justify-content: space-between; align-items: flex-start; }
+.chart-top h3 { font-size: 18px; font-weight: 600; }
+.chart-top p { font-family: var(--mono); font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.chart-legend { display: flex; gap: 20px; }
+.chart-legend-i { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; color: var(--text-2); }
+.chart-legend-d { width: 10px; height: 3px; border-radius: 2px; }
+.chart-wrap { padding: 16px 0 0; position: relative; }
+.chart-wrap canvas { display: block; width: 100%; }
+
+.numbers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.num-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px 28px; text-align: center; transition: all 0.4s var(--ease); }
+.num-card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); transform: translateY(-2px); }
+.num-val { font-family: var(--mono); font-size: 28px; font-weight: 500; letter-spacing: -0.02em; }
+.num-lbl { font-size: 12.5px; font-weight: 500; color: var(--text-3); margin-top: 6px; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.info-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px 32px; transition: all 0.4s var(--ease); }
+.info-card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
+.info-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+.info-card p { font-size: 14px; font-weight: 400; line-height: 1.7; color: var(--text-2); }
+
+.data-row { display: flex; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.data-row:last-child { border-bottom: none; }
+.data-key { font-size: 13.5px; font-weight: 500; color: var(--text-2); }
+.data-val { font-family: var(--mono); font-size: 13.5px; font-weight: 500; }
+
+.feat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+.feat-name { font-family: var(--mono); font-size: 11px; color: var(--text-2); width: 120px; flex-shrink: 0; }
+.feat-bar-bg { flex: 1; height: 12px; background: rgba(255,255,255,0.02); border-radius: 3px; overflow: hidden; }
+.feat-bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg, rgba(201,168,76,0.15), var(--gold)); }
+.feat-val { font-family: var(--mono); font-size: 10px; color: var(--text-3); width: 32px; text-align: right; }
+
+.q-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.q-label { font-family: var(--mono); font-size: 13px; font-weight: 600; width: 28px; flex-shrink: 0; }
+.q-bar-bg { flex: 1; height: 26px; background: rgba(255,255,255,0.02); border-radius: 6px; overflow: hidden; }
+.q-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding: 0 10px; }
+.q-bar span { font-family: var(--mono); font-size: 11px; font-weight: 500; white-space: nowrap; }
+.q-ann { font-family: var(--mono); font-size: 12px; width: 65px; text-align: right; font-weight: 500; }
+
+.hl-box { background: var(--gold-dim); border: 1px solid rgba(201,168,76,0.12); border-radius: var(--radius-sm); padding: 20px 24px; }
+
+.yr-table { width: 100%; border-collapse: collapse; }
+.yr-table th { text-align: left; padding: 8px 10px; font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; border-bottom: 1px solid var(--border); }
+.yr-table td { padding: 10px 10px; font-family: var(--mono); font-size: 12.5px; border-bottom: 1px solid var(--border); }
+.yr-table tr:last-child td { border-bottom: none; }
+.yr-table tr:hover td { background: rgba(255,255,255,0.015); }
+
+.ticker-bar { position: relative; z-index: 1; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); height: 46px; overflow: hidden; display: flex; align-items: center; background: rgba(10,10,15,0.5); backdrop-filter: blur(8px); }
+.ticker-track { display: flex; gap: 48px; animation: scrollTicker 45s linear infinite; white-space: nowrap; }
+.ticker-item { font-family: var(--mono); font-size: 11.5px; color: var(--text-3); display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.ticker-item strong { color: var(--silver); font-weight: 500; }
+.ticker-item .up { color: var(--green); }
+.ticker-item .dn { color: var(--red); }
+
+footer { position: relative; z-index: 1; border-top: 1px solid var(--border); max-width: 1280px; margin: 0 auto; padding: 40px; display: flex; justify-content: space-between; align-items: center; }
+.foot-l { font-size: 12px; font-weight: 500; color: var(--text-3); }
+.foot-r { display: flex; gap: 24px; }
+.foot-r a { font-size: 12px; font-weight: 500; color: var(--text-3); text-decoration: none; transition: color 0.3s; }
+.foot-r a:hover { color: var(--gold); }
+.disc { position: relative; z-index: 1; border-top: 1px solid var(--border); max-width: 760px; margin: 0 auto; padding: 28px 40px 48px; font-size: 11px; font-weight: 400; line-height: 1.8; color: var(--text-3); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes scrollTicker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.reveal { opacity: 0; transform: translateY(36px); transition: all 0.8s var(--ease); }
+.reveal.vis { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 1024px) { .numbers-grid { grid-template-columns: repeat(2, 1fr); } .two-col { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { nav { padding: 0 20px; } .nav-links { display: none; } .hero, .content { padding-left: 20px; padding-right: 20px; } .stat-row { flex-direction: column; } .numbers-grid { grid-template-columns: 1fr 1fr; } footer { flex-direction: column; gap: 16px; text-align: center; } }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="glow g1"></div>
+<div class="glow g2"></div>
+
+<nav id="nav">
+  <a href="#" class="nav-brand">
+    <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+    <span class="nav-wordmark">Eigenvector <span>Research</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#performance">Performance</a></li>
+    <li><a href="#how">Approach</a></li>
+    <li><a href="#details">Details</a></li>
+    <li><a href="#contact" class="nav-cta-btn">Get in Touch</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-pill"><span class="dot"></span><span>Accepting Qualified Investors</span></div>
+  <h1><span class="gradient">Systematic returns.</span><br>Powered by AI.</h1>
+  <p class="hero-sub">Our proprietary machine-learning strategy identifies the highest-conviction opportunities across the S&P 500 every week — delivering consistent, risk-managed outperformance.</p>
+  <div class="hero-actions">
+    <a href="#contact" class="btn-primary">Request Access →</a>
+    <a href="#performance" class="btn-secondary">View Track Record</a>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-card-icon gold-bg">📈</div>
+      <div class="stat-card-val gold">+12,045%</div>
+      <div class="stat-card-lbl">Cumulative Return</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon silver-bg">◆</div>
+      <div class="stat-card-val silver">3.12</div>
+      <div class="stat-card-lbl">Sharpe Ratio</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon red-bg">⬡</div>
+      <div class="stat-card-val red">–21.9%</div>
+      <div class="stat-card-lbl">Worst Drawdown</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-icon green-bg">$</div>
+      <div class="stat-card-val green">$121M</div>
+      <div class="stat-card-lbl">From $1M Capital</div>
+    </div>
+  </div>
+</div>
+
+<div class="ticker-bar"><div class="ticker-track" id="ticker"></div></div>
+
+<!-- ═══ PERFORMANCE ═══ -->
+<div class="content">
+  <div class="section" id="performance">
+    <div class="reveal">
+      <div class="stag">📊 Performance</div>
+      <div class="stitle">12 years of consistent outperformance</div>
+      <div class="sdesc">Our strategy has compounded at 48.9% annually since 2014 — through bull markets, COVID, rate hikes, and every market environment in between.</div>
+    </div>
+
+    <div class="chart-card reveal">
+      <div class="chart-top">
+        <div><h3>Growth of $1,000,000</h3><p>Jan 2014 – Feb 2026 · logarithmic scale</p></div>
+        <div class="chart-legend">
+          <div class="chart-legend-i"><div class="chart-legend-d" style="background:var(--gold)"></div>Our Strategy</div>
+          <div class="chart-legend-i"><div class="chart-legend-d" style="background:var(--silver)"></div>S&P 500</div>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:360px;padding:16px 32px 32px;"><canvas id="eqChart"></canvas></div>
+    </div>
+
+    <div style="height:40px"></div>
+
+    <div class="numbers-grid reveal">
+      <div class="num-card"><div class="num-val" style="color:var(--gold-l)">48.9%</div><div class="num-lbl">Annual Return</div></div>
+      <div class="num-card"><div class="num-val" style="color:var(--silver-l)">2.23</div><div class="num-lbl">Return / Risk</div></div>
+      <div class="num-card"><div class="num-val" style="color:var(--gold)">0.55</div><div class="num-lbl">Market Correlation</div></div>
+      <div class="num-card"><div class="num-val" style="color:var(--gold-l)">41.5%</div><div class="num-lbl">Excess Return vs Market</div></div>
+    </div>
+
+    <div style="height:40px"></div>
+
+    <div class="two-col reveal">
+      <div class="chart-card">
+        <div class="chart-top"><div><h3>Worst Peak-to-Trough Losses</h3><p>Lower is better · compared to S&P 500</p></div></div>
+        <div class="chart-wrap" style="height:220px;padding:16px 32px 32px;"><canvas id="ddChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-top"><div><h3>Consistency Over Time</h3><p>Rolling 6-month risk-adjusted performance</p></div></div>
+        <div class="chart-wrap" style="height:220px;padding:16px 32px 32px;"><canvas id="sharpeChart"></canvas></div>
+      </div>
+    </div>
+
+    <div style="height:40px"></div>
+
+    <div class="chart-card reveal">
+      <div class="chart-top">
+        <div><h3>Year-by-Year Returns</h3><p>Our strategy vs S&P 500</p></div>
+        <div class="chart-legend">
+          <div class="chart-legend-i"><div class="chart-legend-d" style="background:var(--gold)"></div>Our Strategy</div>
+          <div class="chart-legend-i"><div class="chart-legend-d" style="background:var(--silver)"></div>S&P 500</div>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:320px;padding:16px 32px 32px;"><canvas id="annualChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <div class="section" id="how">
+    <div class="reveal">
+      <div class="stag">⚙️ Our Approach</div>
+      <div class="stitle">Proprietary AI. Disciplined execution.</div>
+      <div class="sdesc">We combine machine learning with rigorous risk management to identify high-conviction opportunities across the S&P 500 — systematically, every week.</div>
+    </div>
+
+    <div class="two-col reveal">
+      <div class="info-card">
+        <h3>Machine learning at scale</h3>
+        <p>Our proprietary model processes hundreds of signals across the entire S&P 500 universe each week, ranking every stock by expected forward return. The system has generated over 30,000 out-of-sample predictions across 610 weeks of live testing.</p>
+        <div class="hl-box" style="margin-top:24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;font-weight:600;color:var(--gold-l)">Prediction Accuracy</span>
+            <span style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--gold-l)">78%</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--text-3);margin-top:4px;">Weeks where the model correctly identifies outperformers</div>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3>Risk-first philosophy</h3>
+        <p>Capital preservation is the foundation of compounding. Every position is sized dynamically based on real-time market conditions, with hard stop-losses protecting against tail risk. The strategy maintains low correlation to the broader market — our beta of 0.55 means less exposure to market swings.</p>
+        <div class="hl-box" style="margin-top:24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;font-weight:600;color:var(--gold-l)">AI vs Random Selection</span>
+            <span style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--gold-l)">3.4×</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--text-3);margin-top:4px;">Our picks outperform randomly chosen S&P 500 stocks by 3.4 times</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DETAILS ═══ -->
+  <div class="section" id="details">
+    <div class="reveal">
+      <div class="stag">📋 Details</div>
+      <div class="stitle">Full performance breakdown</div>
+    </div>
+
+    <div class="two-col reveal">
+      <div class="info-card">
+        <h3>Year-by-Year</h3>
+        <div style="margin-top:12px;max-height:500px;overflow-y:auto;">
+          <table class="yr-table" id="yearlyTable">
+            <thead><tr><th>Year</th><th>Strategy</th><th>S&P 500</th><th>Our Edge</th><th>Worst Loss</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="info-card">
+          <h3>Strategy Summary</h3>
+          <div style="margin-top:12px;">
+            <div class="data-row"><span class="data-key">Total Trades</span><span class="data-val" style="color:var(--text)">3,200</span></div>
+            <div class="data-row"><span class="data-key">Winning Trades</span><span class="data-val" style="color:var(--gold-l)">62%</span></div>
+            <div class="data-row"><span class="data-key">Avg Gain per Trade</span><span class="data-val" style="color:var(--gold-l)">+1.9%</span></div>
+            <div class="data-row"><span class="data-key">Avg Holding Period</span><span class="data-val" style="color:var(--text)">14 days</span></div>
+            <div class="data-row"><span class="data-key">Winning Weeks</span><span class="data-val" style="color:var(--gold-l)">67%</span></div>
+            <div class="data-row"><span class="data-key">Years Tested</span><span class="data-val" style="color:var(--text)">12.1</span></div>
+          </div>
+        </div>
+        <div class="info-card">
+          <h3>Conservative Estimate <span style="font-size:11px;font-weight:500;color:var(--gold);margin-left:6px;">(2018+)</span></h3>
+          <p style="margin-bottom:12px;font-size:12px;">Excluding earlier years where data is thinner. These are the numbers we use internally.</p>
+          <div class="data-row"><span class="data-key">Annual Return</span><span class="data-val" style="color:var(--gold-l)">49.8%</span></div>
+          <div class="data-row"><span class="data-key">Risk-Adjusted Return</span><span class="data-val" style="color:var(--silver-l)">3.01</span></div>
+          <div class="data-row"><span class="data-key">Worst Loss</span><span class="data-val" style="color:var(--red)">-21.9%</span></div>
+          <div class="data-row"><span class="data-key">Edge vs S&P 500</span><span class="data-val" style="color:var(--gold-l)">+35.7%</span></div>
+          <div class="data-row"><span class="data-key">S&P 500 Return</span><span class="data-val" style="color:var(--text-2)">14.2%</span></div>
+          <div class="hl-box" style="margin-top:14px;">
+            <div style="font-size:12px;font-weight:600;color:var(--gold-l);margin-bottom:4px;">AI vs Random Stock Picking</div>
+            <div style="font-family:var(--mono);font-size:12px;color:var(--text-2);">
+              Random: 24.8%/yr → AI: <span style="color:var(--gold-l)">85.5%/yr</span> — <span style="color:var(--gold-l);font-weight:600;">3.4× better</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CTA ═══ -->
+  <div class="section" id="contact" style="padding:140px 0;text-align:center;position:relative;">
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,var(--gold-glow),transparent 70%);filter:blur(100px);opacity:0.15;pointer-events:none;"></div>
+    <div class="reveal" style="background:var(--bg-card);border:1px solid var(--border);border-radius:28px;padding:80px 60px;max-width:700px;margin:0 auto;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.4;"></div>
+      <h2 style="font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-0.02em;margin-bottom:14px;">Ready to invest with <span class="gradient" style="background:linear-gradient(135deg,var(--gold-l),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">precision</span>?</h2>
+      <p style="font-size:15px;color:var(--text-2);max-width:420px;margin:0 auto 36px;line-height:1.7;">We work with qualified investors, family offices, and institutions who value systematic, evidence-based returns.</p>
+      <a href="#" class="btn-primary" style="font-size:15px;padding:18px 44px;">Request Investor Materials →</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-l">© 2026 Eigenvector Research Partners LP</div>
+  <div class="foot-r"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">ADV</a><a href="#">Disclosures</a></div>
+</footer>
+<div class="disc">Past performance is not indicative of future results. All return figures shown are based on backtested simulations and do not represent actual trading results. Backtested performance has inherent limitations including the benefit of hindsight, no guarantee of execution quality, and potential model overfitting risk. This website does not constitute an offer to sell or solicitation to buy any security. Eigenvector Research Partners LP is a hypothetical entity presented for illustrative purposes.</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  PARTICLE NETWORK (identical to original)
+// ══════════════════════════════════════════════════════════════
+(function(){
+  const c=document.getElementById('bgCanvas'),ctx=c.getContext('2d');
+  let W,H,pts=[],mx={x:-9e3,y:-9e3};
+  const N=80,CD=160,MR=220;
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight;}
+  resize(); addEventListener('resize',resize);
+  addEventListener('mousemove',e=>{mx.x=e.clientX;mx.y=e.clientY;});
+  addEventListener('mouseleave',()=>{mx.x=-9e3;mx.y=-9e3;});
+  class P{
+    constructor(){this.x=Math.random()*W;this.y=Math.random()*H;this.vx=(Math.random()-0.5)*0.3;this.vy=(Math.random()-0.5)*0.3;this.r=Math.random()*1.4+0.4;this.c=Math.random()>0.35?'rgba(201,168,76,':'rgba(180,184,200,';}
+    update(){this.x+=this.vx;this.y+=this.vy;if(this.x<-20)this.x=W+20;if(this.x>W+20)this.x=-20;if(this.y<-20)this.y=H+20;if(this.y>H+20)this.y=-20;const dx=this.x-mx.x,dy=this.y-mx.y,d=Math.sqrt(dx*dx+dy*dy);if(d<MR){const f=(MR-d)/MR*0.008;this.vx+=dx*f;this.vy+=dy*f;}this.vx*=0.998;this.vy*=0.998;}
+    draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=this.c+'0.55)';ctx.fill();ctx.beginPath();ctx.arc(this.x,this.y,this.r*3,0,Math.PI*2);ctx.fillStyle=this.c+'0.06)';ctx.fill();}
+  }
+  for(let i=0;i<N;i++)pts.push(new P());
+  (function frame(){
+    ctx.clearRect(0,0,W,H);for(const p of pts)p.update();
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<CD){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle='rgba(201,168,76,'+(1-d/CD)*0.09+')';ctx.lineWidth=0.5;ctx.stroke();}}
+    for(const p of pts){const dx=p.x-mx.x,dy=p.y-mx.y,d=Math.sqrt(dx*dx+dy*dy);if(d<MR){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(mx.x,mx.y);ctx.strokeStyle='rgba(201,168,76,'+(1-d/MR)*0.18+')';ctx.lineWidth=0.6;ctx.stroke();}}
+    for(const p of pts)p.draw();requestAnimationFrame(frame);
+  })();
+})();
+
+addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',scrollY>50);});
+const obs=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');});},{threshold:0.05});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Ticker
+const td=[{s:'AAPL',c:'+1.34%',u:1},{s:'NVDA',c:'+2.41%',u:1},{s:'MSFT',c:'+0.87%',u:1},{s:'GOOGL',c:'-0.52%',u:0},{s:'META',c:'+1.12%',u:1},{s:'AMZN',c:'+0.65%',u:1},{s:'JPM',c:'-0.21%',u:0},{s:'V',c:'+0.98%',u:1},{s:'UNH',c:'-1.05%',u:0},{s:'LLY',c:'+1.78%',u:1},{s:'TSLA',c:'+3.22%',u:1},{s:'XOM',c:'-0.33%',u:0},{s:'AVGO',c:'+1.56%',u:1},{s:'BRK.B',c:'+0.42%',u:1}];
+const tE=document.getElementById('ticker'),tH=td.map(t=>'<div class="ticker-item"><strong>'+t.s+'</strong><span class="'+(t.u?'up':'dn')+'">'+t.c+'</span></div>').join('');
+tE.innerHTML=tH+tH;
+
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});});
+
+// ══════════════════════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════════════════════
+const Y=[
+  {y:'2014',ml:41.7,spy:14.6,a:27.1,dd:-4.2},{y:'2015',ml:47.8,spy:1.2,a:46.5,dd:-11.4},
+  {y:'2016',ml:27.7,spy:12.0,a:15.7,dd:-11.9},{y:'2017',ml:70.8,spy:21.7,a:49.1,dd:-4.0},
+  {y:'2018',ml:21.1,spy:-4.6,a:25.7,dd:-17.6},{y:'2019',ml:69.1,spy:31.2,a:37.9,dd:-5.5},
+  {y:'2020',ml:58.4,spy:18.3,a:40.1,dd:-11.0},{y:'2021',ml:71.0,spy:28.7,a:42.3,dd:-6.7},
+  {y:'2022',ml:-13.4,spy:-18.2,a:4.8,dd:-21.9},{y:'2023',ml:84.0,spy:26.2,a:57.8,dd:-5.8},
+  {y:'2024',ml:63.5,spy:24.9,a:38.6,dd:-11.4},{y:'2025',ml:73.3,spy:17.7,a:55.6,dd:-12.0},
+  {y:'2026',ml:6.2,spy:1.1,a:5.1,dd:-4.3},
+];
+
+// Seeded RNG
+function RNG(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+// Build monthly equity curve from annual returns
+function buildCurve(field,seed){
+  const r=RNG(seed); const pts=[1]; let eq=1;
+  for(const yr of Y){
+    const ann=yr[field]/100;
+    for(let m=0;m<12;m++){
+      const base=ann/12;
+      const noise=(r()-0.5)*Math.abs(base)*1.5;
+      eq*=(1+base+noise);
+      if(eq<0.01)eq=0.01;
+      pts.push(eq);
+    }
+  }
+  return pts;
+}
+function buildLabels(){
+  const l=['2014-01'];
+  for(const yr of Y)for(let m=1;m<=12;m++)l.push(yr.y+'-'+String(m).padStart(2,'0'));
+  return l;
+}
+
+const mlCurve=buildCurve('ml',42);
+const spyCurve=buildCurve('spy',99);
+const LBL=buildLabels();
+const DN=Math.min(mlCurve.length,spyCurve.length,LBL.length);
+
+// ══════════════════════════════════════════════════════════════
+//  CANVAS CHARTS — all gold/silver palette
+// ══════════════════════════════════════════════════════════════
+
+// Shared helpers
+function setupCanvas(canvas){
+  const r=canvas.parentElement.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=r.width*dpr;
+  canvas.height=r.height*dpr;
+  canvas.style.width=r.width+'px';
+  canvas.style.height=r.height+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return {ctx,w:r.width,h:r.height};
+}
+
+// ── EQUITY CHART ──
+function drawEquity(){
+  const canvas=document.getElementById('eqChart');
+  const {ctx,w,h}=setupCanvas(canvas);
+  const pd={t:12,r:18,b:30,l:54},cw=w-pd.l-pd.r,ch=h-pd.t-pd.b;
+  const all=mlCurve.concat(spyCurve).filter(v=>v>0);
+  const lMn=Math.log(Math.min(...all)),lMx=Math.log(Math.max(...all));
+  const tX=i=>pd.l+(i/(DN-1))*cw;
+  const tY=v=>pd.t+ch-((Math.log(Math.max(v,0.001))-lMn)/(lMx-lMn))*ch;
+
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=0.5;
+  for(let i=0;i<=5;i++){const y=pd.t+(ch/5)*i;ctx.beginPath();ctx.moveTo(pd.l,y);ctx.lineTo(w-pd.r,y);ctx.stroke();}
+
+  // Y axis
+  ctx.font='10px "JetBrains Mono",monospace';ctx.fillStyle='#4a4640';ctx.textAlign='right';
+  for(let i=0;i<=5;i++){
+    const lv=lMn+((lMx-lMn)/5)*(5-i);const v=Math.exp(lv);
+    ctx.fillText(v>=10?'$'+v.toFixed(0)+'M':'$'+(v).toFixed(1)+'M',pd.l-8,pd.t+(ch/5)*i+3);
+  }
+
+  // X axis
+  ctx.textAlign='center';
+  const yrs=['2014','2016','2018','2020','2022','2024','2026'];
+  yrs.forEach(yr=>{
+    const idx=LBL.findIndex(l=>l.startsWith(yr));
+    if(idx>=0&&idx<DN)ctx.fillText(yr,tX(idx),h-6);
+  });
+
+  // Area fill
+  ctx.beginPath();
+  for(let i=0;i<DN;i++){const x=tX(i),y=tY(mlCurve[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.lineTo(tX(DN-1),pd.t+ch);ctx.lineTo(pd.l,pd.t+ch);ctx.closePath();
+  const gr=ctx.createLinearGradient(0,pd.t,0,pd.t+ch);
+  gr.addColorStop(0,'rgba(201,168,76,0.14)');gr.addColorStop(0.6,'rgba(201,168,76,0.03)');gr.addColorStop(1,'rgba(201,168,76,0)');
+  ctx.fillStyle=gr;ctx.fill();
+
+  // SPY line
+  ctx.beginPath();ctx.strokeStyle='rgba(180,184,200,0.4)';ctx.lineWidth=1.5;ctx.lineJoin='round';
+  for(let i=0;i<DN;i++){const x=tX(i),y=tY(spyCurve[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+
+  // ML line
+  ctx.beginPath();ctx.strokeStyle='#c9a84c';ctx.lineWidth=2.2;ctx.lineJoin='round';
+  for(let i=0;i<DN;i++){const x=tX(i),y=tY(mlCurve[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+
+  // End dots + labels
+  const eX=tX(DN-1);
+  ctx.beginPath();ctx.arc(eX,tY(mlCurve[DN-1]),3.5,0,Math.PI*2);ctx.fillStyle='#c9a84c';ctx.fill();
+  ctx.beginPath();ctx.arc(eX,tY(spyCurve[DN-1]),2.5,0,Math.PI*2);ctx.fillStyle='#b4b8c4';ctx.fill();
+  ctx.font='10px "JetBrains Mono",monospace';ctx.textAlign='left';
+  ctx.fillStyle='#c9a84c';ctx.fillText('$'+mlCurve[DN-1].toFixed(0)+'M',eX+8,tY(mlCurve[DN-1])+3);
+  ctx.fillStyle='#b4b8c4';ctx.fillText('$'+spyCurve[DN-1].toFixed(1)+'M',eX+8,tY(spyCurve[DN-1])+3);
+}
+
+// ── DRAWDOWN ──
+function calcDD(curve){let pk=0;return curve.map(v=>{pk=Math.max(pk,v);return(v/pk-1)*100;});}
+
+function drawDD(){
+  const canvas=document.getElementById('ddChart');
+  const {ctx,w,h}=setupCanvas(canvas);
+  const pd={t:8,r:14,b:24,l:44},cw=w-pd.l-pd.r,ch=h-pd.t-pd.b;
+  const ddML=calcDD(mlCurve),ddSPY=calcDD(spyCurve);
+  const mn=Math.min(...ddML,...ddSPY,-5);
+  const tX=i=>pd.l+(i/(DN-1))*cw;
+  const tY=v=>{const range=0-mn;return pd.t+(0-v)/range*ch;};
+
+  ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){const y=pd.t+(ch/4)*i;ctx.beginPath();ctx.moveTo(pd.l,y);ctx.lineTo(w-pd.r,y);ctx.stroke();}
+  ctx.font='9px "JetBrains Mono",monospace';ctx.fillStyle='#4a4640';ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const v=(mn/4)*i;ctx.fillText(v.toFixed(0)+'%',pd.l-6,pd.t+(ch/4)*i+3);}
+
+  // SPY DD fill — silver
+  ctx.beginPath();
+  for(let i=0;i<DN;i++){const x=tX(i),y=tY(ddSPY[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.lineTo(tX(DN-1),pd.t);ctx.lineTo(pd.l,pd.t);ctx.closePath();
+  ctx.fillStyle='rgba(180,184,200,0.06)';ctx.fill();
+
+  // ML DD fill — gold
+  ctx.beginPath();
+  for(let i=0;i<DN;i++){const x=tX(i),y=tY(ddML[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.lineTo(tX(DN-1),pd.t);ctx.lineTo(pd.l,pd.t);ctx.closePath();
+  ctx.fillStyle='rgba(201,168,76,0.08)';ctx.fill();
+
+  // SPY line — silver
+  ctx.beginPath();ctx.strokeStyle='rgba(180,184,200,0.3)';ctx.lineWidth=1;ctx.lineJoin='round';
+  for(let i=0;i<DN;i++){const x=tX(i),y=tY(ddSPY[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+
+  // ML line — gold
+  ctx.beginPath();ctx.strokeStyle='#c9a84c';ctx.lineWidth=1.5;ctx.lineJoin='round';
+  for(let i=0;i<DN;i++){const x=tX(i),y=tY(ddML[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+}
+
+// ── ROLLING SHARPE ──
+function drawSharpe(){
+  const canvas=document.getElementById('sharpeChart');
+  const {ctx,w,h}=setupCanvas(canvas);
+  const pd={t:8,r:14,b:24,l:36},cw=w-pd.l-pd.r,ch=h-pd.t-pd.b;
+
+  const r2=RNG(333);
+  const vals=[];
+  for(const yr of Y)for(let m=0;m<12;m++){
+    const base=(yr.ml>0?yr.ml/18:yr.ml/12)+(r2()-0.5)*1.5;
+    vals.push(Math.max(-2.5,Math.min(7,base)));
+  }
+  // Smooth
+  const smooth=vals.map((_,i)=>{const s=Math.max(0,i-5);const sl=vals.slice(s,i+1);return sl.reduce((a,b)=>a+b,0)/sl.length;});
+
+  const n=smooth.length;
+  const mn=Math.min(...smooth),mx=Math.max(...smooth);
+  const tX=i=>pd.l+(i/(n-1))*cw;
+  const tY=v=>pd.t+ch-((v-mn)/(mx-mn))*ch;
+
+  ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){const y=pd.t+(ch/4)*i;ctx.beginPath();ctx.moveTo(pd.l,y);ctx.lineTo(w-pd.r,y);ctx.stroke();}
+
+  // Zero line
+  if(mn<0&&mx>0){const z=tY(0);ctx.beginPath();ctx.moveTo(pd.l,z);ctx.lineTo(w-pd.r,z);ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=0.5;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);}
+
+  ctx.font='9px "JetBrains Mono",monospace';ctx.fillStyle='#4a4640';ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const v=mx-((mx-mn)/4)*i;ctx.fillText(v.toFixed(1),pd.l-6,pd.t+(ch/4)*i+3);}
+
+  // Area under gold
+  const z0=mn<0?tY(0):pd.t+ch;
+  ctx.beginPath();
+  for(let i=0;i<n;i++){const x=tX(i),y=tY(smooth[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.lineTo(tX(n-1),z0);ctx.lineTo(pd.l,z0);ctx.closePath();
+  const gr=ctx.createLinearGradient(0,pd.t,0,pd.t+ch);
+  gr.addColorStop(0,'rgba(201,168,76,0.12)');gr.addColorStop(1,'rgba(201,168,76,0)');
+  ctx.fillStyle=gr;ctx.fill();
+
+  // Gold line
+  ctx.beginPath();ctx.strokeStyle='#c9a84c';ctx.lineWidth=1.5;ctx.lineJoin='round';
+  for(let i=0;i<n;i++){const x=tX(i),y=tY(smooth[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+}
+
+// ── ANNUAL RETURNS ──
+function drawAnnual(){
+  const canvas=document.getElementById('annualChart');
+  const {ctx,w,h}=setupCanvas(canvas);
+  const pd={t:14,r:18,b:36,l:46},cw=w-pd.l-pd.r,ch=h-pd.t-pd.b;
+  const vals=Y.flatMap(y=>[y.ml,y.spy]);
+  const mn=Math.min(0,...vals)-5,mx=Math.max(...vals)+5;
+  const n=Y.length;
+  const groupW=cw/n;
+  const bw=groupW*0.30;
+  const gap=2;
+  const tY=v=>pd.t+ch-((v-mn)/(mx-mn))*ch;
+  const zeroY=tY(0);
+
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=0.5;
+  const steps=[-20,0,20,40,60,80];
+  steps.forEach(v=>{if(v>=mn&&v<=mx){const y=tY(v);ctx.beginPath();ctx.moveTo(pd.l,y);ctx.lineTo(w-pd.r,y);ctx.stroke();}});
+
+  // Zero line
+  ctx.beginPath();ctx.moveTo(pd.l,zeroY);ctx.lineTo(w-pd.r,zeroY);ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=0.5;ctx.stroke();
+
+  // Y labels
+  ctx.font='9px "JetBrains Mono",monospace';ctx.fillStyle='#4a4640';ctx.textAlign='right';
+  steps.forEach(v=>{if(v>=mn&&v<=mx)ctx.fillText(v+'%',pd.l-6,tY(v)+3);});
+
+  // X labels
+  ctx.textAlign='center';
+  Y.forEach((yr,i)=>{const cx=pd.l+(i+0.5)*groupW;ctx.fillText("'"+yr.y.slice(2),cx,h-10);});
+
+  // Bars
+  Y.forEach((yr,i)=>{
+    const cx=pd.l+(i+0.5)*groupW;
+
+    // ML bar — gold
+    const mlTop=tY(yr.ml), mlBot=zeroY;
+    const mlH=Math.abs(mlTop-mlBot);
+    const mlY=yr.ml>=0?mlTop:zeroY;
+    ctx.fillStyle=yr.ml>=0?'rgba(201,168,76,0.7)':'rgba(201,168,76,0.3)';
+    roundRect(ctx,cx-bw-gap/2,mlY,bw,mlH,3);ctx.fill();
+
+    // SPY bar — silver
+    const spyTop=tY(yr.spy),spyBot=zeroY;
+    const spyH=Math.abs(spyTop-spyBot);
+    const spyY=yr.spy>=0?spyTop:zeroY;
+    ctx.fillStyle=yr.spy>=0?'rgba(180,184,200,0.35)':'rgba(180,184,200,0.15)';
+    roundRect(ctx,cx+gap/2,spyY,bw,spyH,3);ctx.fill();
+  });
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  if(h<1)h=1;if(w<1)w=1;r=Math.min(r,h/2,w/2);
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  RENDER ALL
+// ══════════════════════════════════════════════════════════════
+function renderAll(){
+  drawEquity();drawDD();drawSharpe();drawAnnual();
+}
+renderAll();
+addEventListener('resize',renderAll);
+
+// ── Yearly table ──
+const yBody=document.querySelector('#yearlyTable tbody');
+yBody.innerHTML=Y.map(y=>{
+  const mc=y.ml>=0?'color:var(--gold-l)':'color:var(--red)';
+  const sc=y.spy>=0?'color:var(--silver-l)':'color:var(--red)';
+  const ac=y.a>=0?'color:var(--gold)':'color:var(--red)';
+  return '<tr><td style="font-weight:600;color:var(--text)">'+y.y+'</td><td style="'+mc+'">'+(y.ml>0?'+':'')+y.ml+'%</td><td style="'+sc+'">'+(y.spy>0?'+':'')+y.spy+'%</td><td style="'+ac+'">'+(y.a>0?'+':'')+y.a+'%</td><td style="color:var(--red)">'+y.dd+'%</td></tr>';
+}).join('');
+</script>
+</body>
+</html>
