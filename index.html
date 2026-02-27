@@ -247,7 +247,24 @@ footer { position: relative; z-index: 1; border-top: 1px solid var(--border); ma
 .reveal { opacity: 0; transform: translateY(36px); transition: all 0.8s var(--ease); }
 .reveal.vis { opacity: 1; transform: translateY(0); }
 
-@media (max-width: 1024px) { .numbers-grid { grid-template-columns: repeat(2, 1fr); } .two-col { grid-template-columns: 1fr; } }
+/* ── SIMULATOR ── */
+.sim-inputs { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 32px; }
+.sim-field { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; transition: all 0.4s var(--ease); }
+.sim-field:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
+.sim-field label { display: block; font-size: 11px; font-weight: 600; color: var(--text-3); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.sim-field input, .sim-field select { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-family: var(--mono); font-size: 15px; color: var(--gold-l); font-weight: 500; outline: none; transition: all 0.3s var(--ease); -moz-appearance: textfield; }
+.sim-field input::-webkit-outer-spin-button, .sim-field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.sim-field input:focus, .sim-field select:focus { border-color: rgba(201,168,76,0.4); box-shadow: 0 0 0 3px rgba(201,168,76,0.08); }
+.sim-field select { cursor: pointer; }
+.sim-field select option { background: var(--bg-card); color: var(--text); }
+.sim-results { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 32px; }
+.sim-result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; text-align: center; transition: all 0.4s var(--ease); }
+.sim-result-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+.sim-result-val { font-family: var(--mono); font-size: 26px; font-weight: 500; letter-spacing: -0.02em; }
+.sim-result-lbl { font-size: 12px; font-weight: 500; color: var(--text-3); margin-top: 6px; }
+.sim-result-sub { font-family: var(--mono); font-size: 11px; color: var(--text-3); margin-top: 4px; }
+
+@media (max-width: 1024px) { .numbers-grid { grid-template-columns: repeat(2, 1fr); } .two-col { grid-template-columns: 1fr; } .sim-inputs, .sim-results { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 768px) { nav { padding: 0 20px; } .nav-links { display: none; } .hero, .content { padding-left: 20px; padding-right: 20px; } .stat-row { flex-direction: column; } .numbers-grid { grid-template-columns: 1fr 1fr; } footer { flex-direction: column; gap: 16px; text-align: center; } }
 </style>
 </head>
@@ -265,6 +282,7 @@ footer { position: relative; z-index: 1; border-top: 1px solid var(--border); ma
   <ul class="nav-links">
     <li><a href="#performance">Performance</a></li>
     <li><a href="#how">Approach</a></li>
+    <li><a href="#simulator">Simulator</a></li>
     <li><a href="#details">Details</a></li>
     <li><a href="#contact" class="nav-cta-btn">Get in Touch</a></li>
   </ul>
@@ -276,27 +294,27 @@ footer { position: relative; z-index: 1; border-top: 1px solid var(--border); ma
   <h1><span class="gradient">Systematic returns.</span><br>Powered by AI.</h1>
   <p class="hero-sub">Our proprietary machine-learning strategy identifies the highest-conviction opportunities across the S&P 500 every week — delivering consistent, risk-managed outperformance.</p>
   <div class="hero-actions">
-    <a href="#contact" class="btn-primary">Request Access →</a>
+    <a href="#contact" class="btn-primary">Request Access <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
     <a href="#performance" class="btn-secondary">View Track Record</a>
   </div>
   <div class="stat-row">
     <div class="stat-card">
-      <div class="stat-card-icon gold-bg">📈</div>
+      <div class="stat-card-icon gold-bg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
       <div class="stat-card-val gold">+12,045%</div>
       <div class="stat-card-lbl">Cumulative Return</div>
     </div>
     <div class="stat-card">
-      <div class="stat-card-icon silver-bg">◆</div>
+      <div class="stat-card-icon silver-bg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b4b8c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
       <div class="stat-card-val silver">3.12</div>
       <div class="stat-card-lbl">Sharpe Ratio</div>
     </div>
     <div class="stat-card">
-      <div class="stat-card-icon red-bg">⬡</div>
+      <div class="stat-card-icon red-bg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e05555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/><path d="M12 2a5 5 0 0 0-5 5h10a5 5 0 0 0-5-5z"/></svg></div>
       <div class="stat-card-val red">–21.9%</div>
       <div class="stat-card-lbl">Worst Drawdown</div>
     </div>
     <div class="stat-card">
-      <div class="stat-card-icon green-bg">$</div>
+      <div class="stat-card-icon green-bg"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ecb71" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
       <div class="stat-card-val green">$121M</div>
       <div class="stat-card-lbl">From $1M Capital</div>
     </div>
@@ -309,7 +327,7 @@ footer { position: relative; z-index: 1; border-top: 1px solid var(--border); ma
 <div class="content">
   <div class="section" id="performance">
     <div class="reveal">
-      <div class="stag">📊 Performance</div>
+      <div class="stag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><path d="M3 3v18h18"/><polyline points="18 9 12 15 9 12 3 18"/></svg> Performance</div>
       <div class="stitle">12 years of consistent outperformance</div>
       <div class="sdesc">Our strategy has compounded at 48.9% annually since 2014 — through bull markets, COVID, rate hikes, and every market environment in between.</div>
     </div>
@@ -364,7 +382,7 @@ footer { position: relative; z-index: 1; border-top: 1px solid var(--border); ma
   <!-- ═══ HOW IT WORKS ═══ -->
   <div class="section" id="how">
     <div class="reveal">
-      <div class="stag">⚙️ Our Approach</div>
+      <div class="stag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Our Approach</div>
       <div class="stitle">Proprietary AI. Disciplined execution.</div>
       <div class="sdesc">We combine machine learning with rigorous risk management to identify high-conviction opportunities across the S&P 500 — systematically, every week.</div>
     </div>
@@ -395,10 +413,85 @@ footer { position: relative; z-index: 1; border-top: 1px solid var(--border); ma
     </div>
   </div>
 
+  <!-- ═══ SIMULATOR ═══ -->
+  <div class="section" id="simulator">
+    <div class="reveal">
+      <div class="stag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> Simulate Your Investment</div>
+      <div class="stitle">See what your money could become</div>
+      <div class="sdesc">Enter your starting capital and contributions below. Watch how our strategy compounds your wealth compared to a standard S&P 500 index investment.</div>
+    </div>
+
+    <div class="sim-inputs reveal">
+      <div class="sim-field">
+        <label>Starting Capital</label>
+        <input type="number" id="simInitial" value="100000" min="0" step="1000">
+      </div>
+      <div class="sim-field">
+        <label>Regular Addition</label>
+        <input type="number" id="simContrib" value="2000" min="0" step="100">
+      </div>
+      <div class="sim-field">
+        <label>Frequency</label>
+        <select id="simFreq">
+          <option value="12">Monthly</option>
+          <option value="4">Quarterly</option>
+          <option value="1">Yearly</option>
+        </select>
+      </div>
+      <div class="sim-field">
+        <label>Time Horizon (years)</label>
+        <input type="number" id="simYears" value="10" min="1" max="30" step="1">
+      </div>
+    </div>
+
+    <div class="sim-results reveal" id="simResults">
+      <div class="sim-result-card">
+        <div class="sim-result-val" style="color:var(--gold-l)" id="simFinalStrat">—</div>
+        <div class="sim-result-lbl">Our Strategy</div>
+        <div class="sim-result-sub" id="simGainStrat"></div>
+      </div>
+      <div class="sim-result-card">
+        <div class="sim-result-val" style="color:var(--silver-l)" id="simFinalSpy">—</div>
+        <div class="sim-result-lbl">S&P 500</div>
+        <div class="sim-result-sub" id="simGainSpy"></div>
+      </div>
+      <div class="sim-result-card">
+        <div class="sim-result-val" style="color:var(--gold-l)" id="simEdge">—</div>
+        <div class="sim-result-lbl">Extra Wealth Generated</div>
+        <div class="sim-result-sub" id="simEdgeSub"></div>
+      </div>
+      <div class="sim-result-card">
+        <div class="sim-result-val" style="color:var(--text)" id="simContribTotal">—</div>
+        <div class="sim-result-lbl">Total Invested</div>
+        <div class="sim-result-sub" id="simContribSub"></div>
+      </div>
+    </div>
+
+    <div class="chart-card reveal">
+      <div class="chart-top">
+        <div><h3>Your Projected Growth</h3><p id="simChartSub">Based on historical performance</p></div>
+        <div class="chart-legend">
+          <div class="chart-legend-i"><div class="chart-legend-d" style="background:var(--gold)"></div>Our Strategy</div>
+          <div class="chart-legend-i"><div class="chart-legend-d" style="background:var(--silver)"></div>S&P 500</div>
+          <div class="chart-legend-i"><div class="chart-legend-d" style="background:rgba(255,255,255,0.12)"></div>Your Contributions</div>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:440px;padding:16px 32px 32px;position:relative;">
+        <canvas id="simChart"></canvas>
+        <div id="simTooltip" style="display:none;position:absolute;pointer-events:none;background:rgba(19,19,24,0.95);border:1px solid rgba(201,168,76,0.25);border-radius:10px;padding:12px 16px;font-family:var(--mono);font-size:12px;z-index:10;min-width:180px;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.4);"></div>
+        <div id="simCrosshair" style="display:none;position:absolute;top:0;bottom:32px;width:1px;background:rgba(201,168,76,0.2);pointer-events:none;z-index:5;"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;padding:16px 20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:var(--text-3);line-height:1.7;" class="reveal">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> This projection uses our backtested annual return of 49.8% (conservative 2018+ estimate) and S&P 500's historical 14.2% CAGR. Past performance does not guarantee future results. Actual returns will vary. This is for illustrative purposes only and does not constitute financial advice.
+    </div>
+  </div>
+
   <!-- ═══ DETAILS ═══ -->
   <div class="section" id="details">
     <div class="reveal">
-      <div class="stag">📋 Details</div>
+      <div class="stag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Details</div>
       <div class="stitle">Full performance breakdown</div>
     </div>
 
@@ -436,7 +529,7 @@ footer { position: relative; z-index: 1; border-top: 1px solid var(--border); ma
           <div class="hl-box" style="margin-top:14px;">
             <div style="font-size:12px;font-weight:600;color:var(--gold-l);margin-bottom:4px;">AI vs Random Stock Picking</div>
             <div style="font-family:var(--mono);font-size:12px;color:var(--text-2);">
-              Random: 24.8%/yr → AI: <span style="color:var(--gold-l)">85.5%/yr</span> — <span style="color:var(--gold-l);font-weight:600;">3.4× better</span>
+              Random: 24.8%/yr <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg> AI: <span style="color:var(--gold-l)">85.5%/yr</span> — <span style="color:var(--gold-l);font-weight:600;">3.4× better</span>
             </div>
           </div>
         </div>
@@ -451,7 +544,7 @@ footer { position: relative; z-index: 1; border-top: 1px solid var(--border); ma
       <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.4;"></div>
       <h2 style="font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-0.02em;margin-bottom:14px;">Ready to invest with <span class="gradient" style="background:linear-gradient(135deg,var(--gold-l),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">precision</span>?</h2>
       <p style="font-size:15px;color:var(--text-2);max-width:420px;margin:0 auto 36px;line-height:1.7;">We work with qualified investors, family offices, and institutions who value systematic, evidence-based returns.</p>
-      <a href="#" class="btn-primary" style="font-size:15px;padding:18px 44px;">Request Investor Materials →</a>
+      <a href="#" class="btn-primary" style="font-size:15px;padding:18px 44px;">Request Investor Materials <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
     </div>
   </div>
 </div>
@@ -522,8 +615,12 @@ function buildCurve(field,seed){
     const ann=yr[field]/100;
     for(let m=0;m<12;m++){
       const base=ann/12;
-      const noise=(r()-0.5)*Math.abs(base)*1.5;
-      eq*=(1+base+noise);
+      // Heavier noise = more realistic intra-year volatility & sharper drawdown spikes
+      const vol = field==='ml' ? 0.04 : 0.05; // monthly vol (~14% / ~17% annualized)
+      const u1=Math.max(1e-10,r()), u2=r();
+      const z=Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);
+      const noise = z * vol;
+      eq*=(1 + base + noise);
       if(eq<0.01)eq=0.01;
       pts.push(eq);
     }
@@ -757,8 +854,244 @@ function roundRect(ctx,x,y,w,h,r){
 function renderAll(){
   drawEquity();drawDD();drawSharpe();drawAnnual();
 }
-renderAll();
-addEventListener('resize',renderAll);
+
+// ══════════════════════════════════════════════════════════════
+//  INVESTMENT SIMULATOR — realistic monthly, interactive tooltip
+// ══════════════════════════════════════════════════════════════
+
+// Historical yearly returns (2018–2025) for realistic path shaping
+const SIM_STRAT_Y = [21.1, 69.1, 58.4, 71.0, -13.4, 84.0, 63.5, 73.3];
+const SIM_SPY_Y   = [-4.6, 31.2, 18.3, 28.7, -18.2, 26.2, 24.9, 17.7];
+const SIM_STRAT_VOL = 0.17;  // annualized vol
+const SIM_SPY_VOL   = 0.19;
+
+function fmtMoney(v){
+  if(Math.abs(v)>=1e9) return '$'+(v/1e9).toFixed(2)+'B';
+  if(Math.abs(v)>=1e6) return '$'+(v/1e6).toFixed(1)+'M';
+  if(Math.abs(v)>=1e3) return '$'+(v/1e3).toFixed(1)+'K';
+  return '$'+Math.round(v).toLocaleString('en');
+}
+
+// Seeded PRNG for reproducible paths
+function sRNG(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function boxMuller(rng){
+  const u1=Math.max(1e-10,rng()),u2=rng();
+  return Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);
+}
+
+// Build monthly normalized growth path: uses real yearly return SHAPES but scales to match target CAGR
+function buildNormPath(yearlyReturns, vol, targetCagr, years, seed){
+  const rng=sRNG(seed);
+  const monthSig=vol/Math.sqrt(12);
+  // Step 1: build raw path using historical return patterns + noise
+  const raw=[1]; let eq=1;
+  for(let yr=0;yr<years;yr++){
+    const baseYr = yr < yearlyReturns.length
+      ? yearlyReturns[yr]
+      : yearlyReturns[yr % yearlyReturns.length] + boxMuller(rng)*6;
+    const annRet = baseYr / 100;
+    const monthBase = annRet / 12;
+    for(let m=0; m<12; m++){
+      const noise = boxMuller(rng) * monthSig * 0.55;
+      eq *= (1 + monthBase + noise);
+      eq = Math.max(eq, 0.005);
+      raw.push(eq);
+    }
+  }
+  // Step 2: rescale so the path's CAGR = targetCagr
+  // Raw CAGR = raw[end]^(1/years) - 1. We want targetCagr.
+  const rawFinal = raw[raw.length - 1];
+  const targetFinal = Math.pow(1 + targetCagr, years);
+  // For each month t, new[t] = raw[t] ^ (log(targetFinal) / log(rawFinal))
+  // This preserves the shape (dips, rallies) but rescales the magnitude
+  const exponent = Math.log(targetFinal) / Math.log(rawFinal);
+  const path = raw.map(v => Math.pow(v, exponent));
+  return path;
+}
+
+// Global sim state for tooltip access
+let SIM = null;
+
+function runSim(){
+  const initial = Math.max(100, parseFloat(document.getElementById('simInitial').value)||100000);
+  const contrib = Math.max(0, parseFloat(document.getElementById('simContrib').value)||0);
+  const freq    = parseInt(document.getElementById('simFreq').value)||12;
+  const years   = Math.max(1, Math.min(30, parseInt(document.getElementById('simYears').value)||10));
+  const N = years * 12; // total months
+
+  // Normalized growth paths — rescaled to match target CAGRs exactly
+  const sNorm = buildNormPath(SIM_STRAT_Y, SIM_STRAT_VOL, 0.498, years, 42);
+  const pNorm = buildNormPath(SIM_SPY_Y,   SIM_SPY_VOL,   0.142, years, 99);
+
+  // Apply contributions & build dollar arrays
+  const sV=[initial], pV=[initial], cV=[initial];
+  let sEq=initial, pEq=initial, totalC=initial;
+  for(let m=1; m<=N; m++){
+    // Contribution this month?
+    const addContrib = (freq===12) || (freq===4 && m%3===0) || (freq===1 && m%12===0);
+    if(addContrib && contrib>0){ sEq+=contrib; pEq+=contrib; totalC+=contrib; }
+    // Apply monthly growth from normalized path
+    sEq *= sNorm[m]/sNorm[m-1];
+    pEq *= pNorm[m]/pNorm[m-1];
+    sV.push(sEq); pV.push(pEq); cV.push(totalC);
+  }
+
+  // Update KPI cards
+  document.getElementById('simFinalStrat').textContent=fmtMoney(sEq);
+  document.getElementById('simGainStrat').textContent='+'+fmtMoney(sEq-totalC)+' gains';
+  document.getElementById('simFinalSpy').textContent=fmtMoney(pEq);
+  document.getElementById('simGainSpy').textContent='+'+fmtMoney(Math.max(0,pEq-totalC))+' gains';
+  document.getElementById('simEdge').textContent='+'+fmtMoney(sEq-pEq);
+  document.getElementById('simEdgeSub').textContent='vs S&P 500 over '+years+' yrs';
+  document.getElementById('simContribTotal').textContent=fmtMoney(totalC);
+  const fn={12:'monthly',4:'quarterly',1:'yearly'}[freq];
+  document.getElementById('simContribSub').textContent=fmtMoney(initial)+' + '+fmtMoney(contrib)+' '+fn;
+  document.getElementById('simChartSub').textContent=years+'-year projection · monthly granularity';
+
+  // Store globally for chart + tooltip
+  SIM = {sV, pV, cV, N, years};
+  drawSimChart();
+}
+
+function drawSimChart(hoverIdx){
+  if(!SIM) return;
+  const {sV,pV,cV,N,years}=SIM;
+  const canvas=document.getElementById('simChart');
+  const {ctx,w,h}=setupCanvas(canvas);
+  const pd={t:16,r:24,b:34,l:62}, cw=w-pd.l-pd.r, ch=h-pd.t-pd.b;
+  const n=sV.length;
+
+  // Linear scale — shows the real dollar gap between strategy and SPY
+  const allV=[...sV,...pV,...cV];
+  const vMin=0, vMax=Math.max(...allV)*1.08;
+  const tX=i=>pd.l+(i/(n-1))*cw;
+  const tY=v=>pd.t+ch-((v-vMin)/(vMax-vMin))*ch;
+
+  // Store for tooltip hit testing
+  SIM._tX=tX; SIM._tY=tY; SIM._pd=pd; SIM._cw=cw; SIM._ch=ch; SIM._n=n; SIM._w=w; SIM._h=h;
+
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=0.5;
+  for(let i=0;i<=6;i++){const y=pd.t+(ch/6)*i;ctx.beginPath();ctx.moveTo(pd.l,y);ctx.lineTo(w-pd.r,y);ctx.stroke();}
+
+  // Y labels
+  ctx.font='10px "JetBrains Mono",monospace';ctx.fillStyle='#4a4640';ctx.textAlign='right';
+  for(let i=0;i<=6;i++){
+    const v=vMax-((vMax-vMin)/6)*i;
+    ctx.fillText(fmtMoney(v),pd.l-8,pd.t+(ch/6)*i+3);
+  }
+  // X labels
+  ctx.textAlign='center';
+  for(let yr=0;yr<=years;yr++){
+    const idx=yr*12; if(idx<n) ctx.fillText(yr===0?'Now':'Yr '+yr, tX(idx), h-8);
+  }
+
+  // Contributions dashed line
+  ctx.beginPath();
+  for(let i=0;i<n;i++){const x=tX(i),y=tY(cV[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.lineTo(tX(n-1),pd.t+ch);ctx.lineTo(pd.l,pd.t+ch);ctx.closePath();
+  ctx.fillStyle='rgba(255,255,255,0.025)';ctx.fill();
+  ctx.beginPath();ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;ctx.lineJoin='round';
+  for(let i=0;i<n;i++){const x=tX(i),y=tY(cV[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();ctx.setLineDash([]);
+
+  // Strategy area
+  ctx.beginPath();
+  for(let i=0;i<n;i++){const x=tX(i),y=tY(sV[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.lineTo(tX(n-1),pd.t+ch);ctx.lineTo(pd.l,pd.t+ch);ctx.closePath();
+  const gr=ctx.createLinearGradient(0,pd.t,0,pd.t+ch);
+  gr.addColorStop(0,'rgba(201,168,76,0.16)');gr.addColorStop(0.5,'rgba(201,168,76,0.04)');gr.addColorStop(1,'rgba(201,168,76,0)');
+  ctx.fillStyle=gr;ctx.fill();
+
+  // SPY line
+  ctx.beginPath();ctx.strokeStyle='rgba(180,184,200,0.45)';ctx.lineWidth=1.8;ctx.lineJoin='round';
+  for(let i=0;i<n;i++){const x=tX(i),y=tY(pV[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+
+  // Strategy line
+  ctx.beginPath();ctx.strokeStyle='#c9a84c';ctx.lineWidth=2.5;ctx.lineJoin='round';
+  for(let i=0;i<n;i++){const x=tX(i),y=tY(sV[i]);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+
+  // End dots + labels
+  const eX=tX(n-1);
+  ctx.beginPath();ctx.arc(eX,tY(sV[n-1]),4,0,Math.PI*2);ctx.fillStyle='#c9a84c';ctx.fill();
+  ctx.beginPath();ctx.arc(eX,tY(pV[n-1]),3,0,Math.PI*2);ctx.fillStyle='#b4b8c4';ctx.fill();
+  ctx.font='11px "JetBrains Mono",monospace';ctx.textAlign='left';
+  const sy=tY(sV[n-1]), py=tY(pV[n-1]);
+  ctx.fillStyle='#c9a84c';ctx.fillText(fmtMoney(sV[n-1]),eX+8,sy+4);
+  ctx.fillStyle='#b4b8c4';ctx.fillText(fmtMoney(pV[n-1]),eX+8,py+(Math.abs(sy-py)<16?16:4));
+
+  // Hover crosshair + dots
+  if(hoverIdx!==undefined && hoverIdx>=0 && hoverIdx<n){
+    const hx=tX(hoverIdx), hsy=tY(sV[hoverIdx]), hpy=tY(pV[hoverIdx]);
+    // Vertical line
+    ctx.beginPath();ctx.moveTo(hx,pd.t);ctx.lineTo(hx,pd.t+ch);
+    ctx.strokeStyle='rgba(201,168,76,0.18)';ctx.lineWidth=1;ctx.setLineDash([]);ctx.stroke();
+    // Hover dots — strategy
+    ctx.beginPath();ctx.arc(hx,hsy,7,0,Math.PI*2);ctx.fillStyle='rgba(201,168,76,0.2)';ctx.fill();
+    ctx.beginPath();ctx.arc(hx,hsy,3.5,0,Math.PI*2);ctx.fillStyle='#c9a84c';ctx.fill();
+    // Hover dots — spy
+    ctx.beginPath();ctx.arc(hx,hpy,6,0,Math.PI*2);ctx.fillStyle='rgba(180,184,200,0.2)';ctx.fill();
+    ctx.beginPath();ctx.arc(hx,hpy,3,0,Math.PI*2);ctx.fillStyle='#b4b8c4';ctx.fill();
+  }
+}
+
+// ── INTERACTIVE TOOLTIP ──
+(function(){
+  const canvas=document.getElementById('simChart');
+  const tooltip=document.getElementById('simTooltip');
+  const crosshair=document.getElementById('simCrosshair');
+
+  function onMove(e){
+    if(!SIM||!SIM._tX) return;
+    const rect=canvas.getBoundingClientRect();
+    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    const {_pd:pd,_cw:cw,_ch:ch,_n:n,sV,pV,cV,years}=SIM;
+    if(mx<pd.l||mx>pd.l+cw||my<pd.t||my>pd.t+ch){
+      tooltip.style.display='none'; crosshair.style.display='none'; drawSimChart(); return;
+    }
+    const idx=Math.max(0,Math.min(n-1,Math.round((mx-pd.l)/cw*(n-1))));
+    const xPos=SIM._tX(idx);
+    const yr=Math.floor(idx/12), mo=idx%12;
+    const timeLabel=idx===0?'Start':'Year '+yr+(mo>0?', Month '+mo:'');
+
+    // Position crosshair div (for smooth rendering above canvas)
+    crosshair.style.display='block';
+    crosshair.style.left=xPos+'px';
+
+    // Build tooltip
+    tooltip.style.display='block';
+    tooltip.innerHTML=
+      '<div style="color:var(--text-2);font-size:10px;margin-bottom:8px;font-weight:600;letter-spacing:0.05em;">'+timeLabel+'</div>'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#c9a84c;display:inline-block;"></span><span style="color:#c9a84c;font-weight:500;">Strategy: '+fmtMoney(sV[idx])+'</span></div>'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#b4b8c4;display:inline-block;"></span><span style="color:#b4b8c4;font-weight:500;">S&P 500: '+fmtMoney(pV[idx])+'</span></div>'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;"><span style="width:8px;height:8px;border-radius:2px;background:rgba(255,255,255,0.15);display:inline-block;"></span><span style="color:var(--text-3);">Invested: '+fmtMoney(cV[idx])+'</span></div>'+
+      '<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:6px;color:var(--gold-l);font-weight:600;font-size:11px;">Edge: +'+fmtMoney(sV[idx]-pV[idx])+'</div>';
+
+    // Position tooltip
+    const tw=tooltip.offsetWidth, th=tooltip.offsetHeight;
+    let tx=xPos+16, ty=my-th/2;
+    if(tx+tw>rect.width-10) tx=xPos-tw-16;
+    if(ty<4) ty=4; if(ty+th>rect.height-4) ty=rect.height-th-4;
+    tooltip.style.left=tx+'px'; tooltip.style.top=ty+'px';
+
+    // Redraw chart with hover dots
+    drawSimChart(idx);
+  }
+
+  function onLeave(){
+    tooltip.style.display='none'; crosshair.style.display='none'; drawSimChart();
+  }
+
+  canvas.style.cursor='crosshair';
+  canvas.addEventListener('mousemove',onMove);
+  canvas.addEventListener('mouseleave',onLeave);
+  canvas.addEventListener('touchmove',function(e){e.preventDefault();onMove({clientX:e.touches[0].clientX,clientY:e.touches[0].clientY});},{passive:false});
+  canvas.addEventListener('touchend',onLeave);
+})();
+
+// Simulator event listeners
+['simInitial','simContrib','simFreq','simYears'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',function(){clearTimeout(this._t);this._t=setTimeout(runSim,200);});
+});
 
 // ── Yearly table ──
 const yBody=document.querySelector('#yearlyTable tbody');
@@ -768,6 +1101,13 @@ yBody.innerHTML=Y.map(y=>{
   const ac=y.a>=0?'color:var(--gold)':'color:var(--red)';
   return '<tr><td style="font-weight:600;color:var(--text)">'+y.y+'</td><td style="'+mc+'">'+(y.ml>0?'+':'')+y.ml+'%</td><td style="'+sc+'">'+(y.spy>0?'+':'')+y.spy+'%</td><td style="'+ac+'">'+(y.a>0?'+':'')+y.a+'%</td><td style="color:var(--red)">'+y.dd+'%</td></tr>';
 }).join('');
+
+// ══════════════════════════════════════════════════════════════
+//  INIT — everything is defined, now run
+// ══════════════════════════════════════════════════════════════
+renderAll();
+runSim();
+addEventListener('resize',function(){renderAll();runSim();});
 </script>
 </body>
 </html>
